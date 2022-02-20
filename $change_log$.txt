@@ -1,0 +1,22 @@
+Sun Feb 20 12:57:31 2022  T. Kurt Bond  (TKB at MPLVAX)
+
+        * README.RST: Rename from AAAREADME.1ST so GitHub will
+        recognize it.   Update with more details about the versions of
+        XLISP and SCM used, and list the projects I used it for.
+
+        * SSTG.LSP, SSTG_TO_C.LSP: Update comments slightly in preparation
+        for uploading to GitHub.
+
+Fri Feb 18 14:30:30 2022  T. Kurt Bond  (TKB at MPLVAX)
+
+        * SSTG_TO_C.SCM: Finished porting SSTG_TO_C.LSP to Scheme,
+        including adding command line argument processing, so it can be
+        run non-interactively.
+
+        * SSTG.SCM: Add command line argument processing, so it can be run
+        non-interactively. 
+
+        * SSTG_SETUP.COM: add a command procedure to define DCL
+        symbols for foreign commands using SCM to run SSTG.SCM and
+        SSTG_TO_C.SCM.
+
