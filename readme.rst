@@ -18,12 +18,13 @@ later.)  FRG was a compiler (written in VAX BASIC and VAX MACRO and
 producing VAX BASIC) for a a report generation language that used
 POISE DMS files as input to produce spreadsheet-like summaries.
 
-In early 2022 I completed porting SSTG_TO_C to R4RS using SCM 4c0, the
-Scheme available on the VAX/VMS v5.5-2 system that I maintain, in
-order to recompile SDCL_ in preparation for putting it up on GitHub.
+In early 2022 I completed porting SSTG_TO_C to R4RS using SCM_ 4c0
+(still available here_), the Scheme available on the VAX/VMS v5.5-2
+system that I maintain, in order to recompile SDCL_ in preparation for
+putting it up on GitHub.
 
 
 .. _XLISP: http://www.softwarepreservation.org/projects/LISP/xlisp
 .. _SDCL: https://github.com/tkurtbond/sdcl
-
-
+.. _SCM: https://people.csail.mit.edu/jaffer/SCM.html
+.. _here: http://groups.csail.mit.edu/mac/ftpdir/scm/OLD/
