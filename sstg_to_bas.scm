@@ -3,11 +3,7 @@
 ;;;;                    SSTG == simple scanner table generator
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;
-;;; Author:   Thomas Kurt Bond
-;;;
-;;; Address:  AdminiSoft, Inc.                 Rt. 1, Box 74     
-;;;           P.O. Box 789              or     Jane Lew, WV 26378
-;;;           Buckhannon, WV 26201
+;;; Author:   T. Kurt Bond
 ;;;
 ;;; Description:
 ;;;
@@ -30,9 +26,12 @@
 
 
 ;;; global constants
+(define program-name "sstg_to_bas")     ; Name: simple scanner table generator
+(define program-version "2.0")		; Version number of scanner
+
 (define tab (integer->char 9))
 (define nl #\newline)
-(define first-tc-value 25)		;token code values start with this
+(define first-tc-value 10)		;token code values start with this
 
 ;;; global variables
 (define creator "")
@@ -50,6 +49,16 @@
 
 
 ;;; support procedures
+(define (upcase s)
+  (let* ((s (if (symbol? s) (symbol->string s) s))
+         (l (string-length s))
+         (t (make-string l)))
+    (do ((i 0 (+ i 1)))
+        ((= i l) t)
+      (let* ((c (string-ref s i))
+             (c (if (char-lower-case? c) (char-upcase c) c)))
+        (string-set! t i c)))))
+
 (define (dt . args)
   (for-each (lambda (obj) (display obj table-file)) args))
 
@@ -130,8 +139,8 @@
 	   (set! source (rd))
 	   (dt ";!> " table-file-name)
 	   (dc tab "!> " code-file-name)
-	   (db " -- made by " creator " " version " from " source
-	       " by way of " input-file-name nl)
+	   (db " -- made by " program-name " " program-version " from " source
+	       " (by way of " input-file-name " created by " creator " " version ")" nl nl)
 	   #t))))
 
 (define (dc-cont i)
@@ -150,10 +159,10 @@
       (set! len (rd))
       (dt "; ")
       (dc tab "! ")
-      (db "character classes" nl nl)
+      (db "character classes" nl)
       (dc tab "external byte constant &" nl)
       (dotimes len (lambda (i)
-		     (let* ((name (rd))
+		     (let* ((name (upcase (rd)))
 			    (value (rd)))
 		       (dt name " == " value nl)
 		       (dc-cont i)
@@ -177,9 +186,9 @@
       (dt tab ".psect char_to_class pic,usr,ovr,rel,gbl,"
 	  "shr,noexe,rd,wrt,novec,long" nl)
       (dc tab "common (char_to_class) byte char_to_class(0 to "
-	  (- len 1) ")" nl nl)
+	  (- len 1) ")" nl)
       (dotimes len (lambda (i)
-		     (let* ((name (rd))
+		     (let* ((name (upcase (rd)))
 			    (value (rd)))
 		       (dt tab ".byte " name nl))))
       (db nl)
@@ -199,7 +208,7 @@
       (db "Action Codes" nl)
       (dc tab "external byte constant &" nl)
       (dotimes len (lambda (i)
-		     (let* ((name (rd))
+		     (let* ((name (upcase (rd)))
 			    (value (rd)))
 		       (dt name " == " value nl)
 		       (dc-cont i)
@@ -226,7 +235,7 @@
       (dc tab "external byte constant &" nl)
       (dt "first_tc_value == " first-tc-value nl)
       (dotimes len (lambda (i)
-		     (let* ((name (rd))
+		     (let* ((name (upcase (rd)))
 			    (value (rd)))
 		       (set! token-list
 			     (append token-list (list (cons name value))))
@@ -261,7 +270,7 @@
       (dc tab "common (return_codes) byte return_codes(0 to "
 	  (- len 1) ")" nl)
       (dotimes len (lambda (i)
-		     (let* ((name (rd))
+		     (let* ((name (upcase (rd)))
 			    (value (rd)))
 		       (dt tab ".byte " name nl))))
       (db nl)
@@ -281,10 +290,10 @@
 		     (let* ((name (rd)) (value (rd)))
 		       (dt "LXM_" i ":" tab ".ascid /" name "/" nl))))
       (dt "LXM_" len ":" tab
-	  ".ascid /internal error: invalid leical error message number/" nl)
+	  ".ascid /internal error: invalid lexical error message number/" nl)
       (dt "lex_mess_max == " len nl)
       (dt nl)
-      (dt ";Lexical error message vector table" nl)
+      (dt "; Lexical error message vector table" nl)
       (dt "lex_messages::" nl)
       (dotimes (+ 1 len) (lambda (i) (dt tab ".long LXM_" i nl)))
       (dt nl)
@@ -299,8 +308,8 @@
      (else
       (dt "; ")
       (dc tab "! ")
-      (db "Start State" nl)
-      (let* ((name (rd))
+      (db "Start state" nl)
+      (let* ((name (upcase (rd)))
 	     (value (rd)))
 	(dt name " == " value nl)
 	(dc tab "external byte constant &" nl tab tab name nl)
@@ -317,7 +326,7 @@
       (dt "; ")
       (dc tab "! ")
       (db "Accept State" nl)
-      (let* ((name (rd))
+      (let* ((name (upcase (rd)))
 	     (value (rd)))
 	(dt name " == " value nl)
 	(dc tab "external byte constant &" nl tab tab name nl)
@@ -346,7 +355,6 @@
 					 (dt tab ".byte " value nl))))
 		   (dt nl)))
 	(db nl)
-	(dt nl)
 	#t)))))
 
 (define (process-action-matrix)
@@ -367,12 +375,36 @@
 	(dotimes num-rows
 		 (lambda (i)
 		   (dotimes num-cols (lambda (j)
-				       (let ((value (rd)))
+				       (let ((value (upcase (rd))))
 					 (dt tab ".byte " value nl))))
 		   (dt nl)))
 	(db nl)
 	#t)))))
       
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; If arguments were specified to SCM on the command line, assume
+;;; they are the input table file and the output codes file and
+;;; lexical tables file and run sstg-to-bas on them, then exit.
+;;; Otherwise, just let the user do things interactively.
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(if (= 5 (length (program-arguments)))
+    (begin
+      ;; We've got the input scanner file and the output table file.
+      (let ((tabfile (caddr (program-arguments)))
+            (codesfile (cadddr (program-arguments)))
+            (lextabfile (car (cddddr (program-arguments)))))
+        (display "tabfile: ")
+        (write tabfile)
+        (display " codesfile: ")
+        (write codesfile)
+        (display " lextabfile: ")
+        (write lextabfile)
+        (newline)
+        (sstg-to-bas tabfile codesfile lextabfile)
+        (quit))))      
+    
     
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

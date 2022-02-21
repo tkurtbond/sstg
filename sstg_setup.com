@@ -11,3 +11,4 @@ $ write sys$output "sstg_dir: ", sstg_dir
 $ if f$type (scm) .eqs. "" then @com:scm_setup ! make sure SCM is defined.
 $ sstg :== 'scm' 'sstg_dir'sstg.scm
 $ sstg_to_c :== 'scm' 'sstg_dir'sstg_to_c.scm
+$ sstg_to_bas :== 'scm' 'sstg_dir'sstg_to_bas.scm
