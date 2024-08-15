@@ -1,0 +1,1 @@
+* Do SSTG_TO_C.SCM and SSTG_TO_BAS.SCM correctly consume SSTG.SCM output?

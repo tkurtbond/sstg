@@ -1,7 +1,7 @@
 SSTG -- Simple Scanner Table Generator
 @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-Documentation at the bottom of SSTG.SCM and SSTG.LSP.  
+Documentation is at the bottom of SSTG.SCM and SSTG.LSP.  
 
 The .LSP files are for David Betz's XLISP_ 1.7 (circa 1986).
 
